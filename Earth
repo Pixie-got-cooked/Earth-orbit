@@ -1,0 +1,86 @@
+cat > solar.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solar System</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #050814; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+}
+resize();
+addEventListener("resize", resize);
+
+const stars = Array.from({ length: 120 }, () => ({
+  x: Math.random(),
+  y: Math.random(),
+  r: Math.random() * 1.4 + 0.3
+}));
+
+let angle = 0;
+
+function draw() {
+  const w = canvas.width, h = canvas.height;
+  const cx = w / 2, cy = h / 2;
+  const orbitR = Math.min(w, h) * 0.32;
+  const sunR = Math.min(w, h) * 0.09;
+  const earthR = Math.min(w, h) * 0.03;
+
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.fillStyle = "#fff";
+  for (const s of stars) {
+    ctx.beginPath();
+    ctx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "rgba(255,255,255,0.25)";
+  ctx.beginPath();
+  ctx.arc(cx, cy, orbitR, 0, Math.PI * 2);
+  ctx.stroke();
+
+  const glow = ctx.createRadialGradient(cx, cy, sunR * 0.3, cx, cy, sunR * 2.2);
+  glow.addColorStop(0, "rgba(255,200,60,0.6)");
+  glow.addColorStop(1, "rgba(255,200,60,0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, sunR * 2.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#ffb400";
+  ctx.beginPath();
+  ctx.arc(cx, cy, sunR, 0, Math.PI * 2);
+  ctx.fill();
+
+  const ex = cx + Math.cos(angle) * orbitR;
+  const ey = cy + Math.sin(angle) * orbitR;
+  ctx.fillStyle = "#2f7de1";
+  ctx.beginPath();
+  ctx.arc(ex, ey, earthR, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#3fae5a";
+  ctx.beginPath();
+  ctx.arc(ex - earthR * 0.25, ey - earthR * 0.2, earthR * 0.45, 0, Math.PI * 2);
+  ctx.fill();
+
+  angle += 0.01;
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+</body>
+</html>
+EOF
